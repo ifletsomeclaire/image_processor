@@ -1,0 +1,15 @@
+[package]
+name = "processor"
+version = "0.1.0"
+authors = ["ifletsomeclaire <69061963+ifletsomeclaire@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+interpolate = { path = "../interpolate" }
+upscale = { path = "../upscale" }
+raster = "*"
+# image = "0.23.10"
+gif = "0.11.1"
+walkdir = "2"
