@@ -15,4 +15,4 @@ Cargo.lock
 /target
 
 /x_output/interpolate/*
-/x_output/stars/*
+/x_output/image_files/*
