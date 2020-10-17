@@ -13,7 +13,6 @@ fn main() {
     upscale_images(&mut images, width, height);
     save_images("x_output/stars", &images);
 
-    // let gif_path = "E:/Rust/Projects/image_processor/x_output/gif_hack.gif";
     let gif_path = "x_output/gif_hack.gif";
     generate_gif(gif_path, images, width, height);
 
@@ -22,8 +21,8 @@ fn main() {
         root.join("x_output/interpolate"),
         String::from("gifout.gif"),
     );
-    args.with_interpolations(Interpolations::Eight);
-    args.with_loop(DainBool::OneTrue);
+    args.set_interpolations(Interpolations::Eight);
+    args.set_loop(DainBool::OneTrue);
     run_dain_and_wait(&args);
 
     let newimages = walkdir_for_images("x_output/interpolate/interpolated_frames");

@@ -54,7 +54,7 @@ impl DainArgs {
             }
         }
         result.push("--png_compress");
-        result.push("1");
+        result.push("0");
         result
     }
     pub fn new<P: AsRef<Path>>(input: P, output: P, output_name: String) -> Self {
@@ -65,10 +65,10 @@ impl DainArgs {
             ..Default::default()
         }
     }
-    pub fn with_interpolations(&mut self, count: Interpolations) {
+    pub fn set_interpolations(&mut self, count: Interpolations) {
         self.interpolations = Some(count)
     }
-    pub fn with_loop(&mut self, count: DainBool) {
+    pub fn set_loop(&mut self, count: DainBool) {
         self.anim_loop = Some(count)
     }
 }
