@@ -1,5 +1,5 @@
 [package]
-name = "processor"
+name = "edge_detector"
 version = "0.1.0"
 authors = ["ifletsomeclaire <69061963+ifletsomeclaire@users.noreply.github.com>"]
 edition = "2018"
@@ -7,8 +7,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-interpolate = { path = "../interpolate" }
-edge_detector = { path = "../edge_detector" }
-raster = "*"
-gif = "0.11.1"
-walkdir = "2"
+edge-detection = "0.2.5"
+image = "0.23"
