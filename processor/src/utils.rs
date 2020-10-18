@@ -32,7 +32,7 @@ fn read_sample_folder_and_dain_it() {
 
 
 
-
+// walkdir is recursive; ensure there are no nested folders in path provided
 pub fn walkdir_for_images<P: AsRef<Path>>(path: P) -> Vec<Image> {
     let mut images = Vec::new();
     for entry in walkdir::WalkDir::new(path) {
