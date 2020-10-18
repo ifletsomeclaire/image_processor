@@ -1,3 +1,3 @@
 [workspace]
 
-members = ["processor", "interpolate", "edge_detector"]
+members = ["processor", "interpolate", "edge_detector", "editor_utils"]

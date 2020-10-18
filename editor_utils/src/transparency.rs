@@ -1,14 +1,13 @@
 use std::path::Path;
-
 use raster::{Color, Image};
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
-use crate::utils;
+use crate::image_io;
 
 pub fn transparency<P: AsRef<Path>>(path: P) {
-    let mut images = utils::walkdir_for_images(path);
+    let mut images = image_io::walkdir_for_images(path);
     remove_background_noise(&mut images);
-    utils::save_images("x_output/transparency", &images);
+    image_io::save_images("x_output/transparency", &images);
 }
 
 pub fn remove_background_noise(images: &mut Vec<Image>) {

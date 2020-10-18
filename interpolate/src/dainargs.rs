@@ -73,13 +73,6 @@ impl DainArgs {
     }
 }
 
-#[derive(Debug)]
-pub enum FileType {
-    Gif,
-    Mp4,
-    Webm,
-    Apng,
-}
 #[derive(Debug, Copy, Clone)]
 pub enum DainBool {
     OneTrue,
