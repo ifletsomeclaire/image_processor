@@ -1,8 +1,11 @@
-use std::path::{Path};
 use gif::{Encoder, Frame, Repeat};
-use interpolate::{dainargs::{DainArgs, DainBool, Interpolations}, run_dain_and_wait};
+use interpolate::{
+    dainargs::{DainArgs, DainBool, Interpolations},
+    run_dain_and_wait,
+};
 use raster::{editor::resize, Image, InterpolationMode, ResizeMode};
-
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+use std::path::Path;
 
 fn read_sample_folder_and_dain_it() {
     let root = std::env::current_dir().unwrap();
@@ -28,9 +31,6 @@ fn read_sample_folder_and_dain_it() {
     let newimages = walkdir_for_images("x_output/interpolate/interpolated_frames");
     generate_gif(gif_path, newimages, width, height);
 }
-
-
-
 
 // walkdir is recursive; ensure there are no nested folders in path provided
 pub fn walkdir_for_images<P: AsRef<Path>>(path: P) -> Vec<Image> {
@@ -69,18 +69,8 @@ pub fn save_images(path: &str, images: &Vec<Image>) {
     }
 }
 
-pub fn raster_upscale_image(image: &mut Image, w: i32, h: i32) -> &mut Image {
-    match resize(image, w, h, ResizeMode::Fill) {
-        Ok(_) => {
-            raster::interpolate::resample(image, w, h, InterpolationMode::Bicubic).unwrap();
-            image
-        }
-        Err(x) => panic!("{:?}", x),
-    }
-}
-
 pub fn upscale_images(images: &mut Vec<Image>, w: i32, h: i32) {
-    for image in images {
-        raster_upscale_image(image, w, h);
-    }
+    images.par_iter_mut().for_each(|image| {
+        raster::interpolate::resample(image, w, h, InterpolationMode::Bicubic).unwrap()
+    });
 }

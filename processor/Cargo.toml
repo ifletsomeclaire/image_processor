@@ -12,3 +12,4 @@ edge_detector = { path = "../edge_detector" }
 raster = "*"
 gif = "0.11.1"
 walkdir = "2"
+rayon = "*"

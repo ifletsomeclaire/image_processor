@@ -1,56 +1,56 @@
 use std::path::Path;
 
 use raster::{Color, Image};
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 use crate::utils;
 
-pub fn transparency_test<P: AsRef<Path>>(path: P) {
+pub fn transparency<P: AsRef<Path>>(path: P) {
     let mut images = utils::walkdir_for_images(path);
     remove_background_noise(&mut images);
     utils::save_images("x_output/transparency", &images);
 }
 
 pub fn remove_background_noise(images: &mut Vec<Image>) {
-    for image in images {
-        process_pixels_transparency(image);
-    }
+    images.par_iter_mut().for_each(|image| {
+        image.remove_dark_pixels(10.0);
+        image.remove_by_inverse_square(0.001)
+    });
 }
 
-fn process_pixels_transparency(image: &mut Image) {
-    for x in 0..image.width {
-        for y in 0..image.height {
-            remove_dark_pixels(image, x, y);
-            inverse_square(image, x, y);
+pub trait Transparency {
+    fn remove_dark_pixels(&mut self, max_alpha: f32);
+    fn remove_by_inverse_square(&mut self, square: f32);
+}
+
+impl Transparency for Image {
+    fn remove_dark_pixels(&mut self, max_alpha: f32) {
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let p = self.get_pixel(x, y).unwrap();
+                let gray = (p.r as f32 * 0.3) + (p.g as f32 * 0.59) + (p.b as f32 * 0.11);
+                if gray < max_alpha {
+                    self.set_pixel(x, y, Color::rgba(p.r, p.g, p.b, 0)).unwrap();
+                }
+            }
         }
     }
-}
-
-fn remove_dark_pixels(image: &mut Image, x: i32, y: i32) {
-    let p = image.get_pixel(x, y).unwrap();
-    let gray = (p.r as f32 * 0.3) + (p.g as f32 * 0.59) + (p.b as f32 * 0.11);
-    if gray < 10.0 {
-        image
-            .set_pixel(x, y, Color::rgba(p.r, p.g, p.b, 0))
-            .unwrap();
+    fn remove_by_inverse_square(&mut self, square: f32) {
+        for x in 0..self.width {
+            for y in 0..self.height {
+                let p = self.get_pixel(x, y).unwrap();
+                let gray = (p.r as f32 * 0.33) + (p.g as f32 * 0.33) + (p.b as f32 * 0.33);
+                let alt_inv = 1.0
+                    / distance(
+                        (x as f32, y as f32),
+                        (self.width as f32 / 2.0, self.height as f32 / 2.0),
+                    )
+                    .powf(square);
+                self.set_pixel(x, y, Color::rgba(p.r, p.g, p.b, (gray * alt_inv) as u8))
+                    .unwrap();
+            }
+        }
     }
-}
-fn inverse_square(image: &mut Image, x: i32, y: i32) {
-    let p = image.get_pixel(x, y).unwrap();
-    let gray = (p.r as f32 * 0.3) + (p.g as f32 * 0.59) + (p.b as f32 * 0.11);
-    // let inv_sqr = 1.0
-    //     / distance_squared(
-    //         (x as f32, y as f32),
-    //         (image.width as f32 / 2.0, image.height as f32 / 2.0),
-    //     );
-    let alt_inv = 1.0
-        / distance(
-            (x as f32, y as f32),
-            (image.width as f32 / 2.0, image.height as f32 / 2.0),
-        ).powf(0.01);
-
-    image
-        .set_pixel(x, y, Color::rgba(p.r, p.g, p.b, (gray * alt_inv) as u8))
-        .unwrap();
 }
 
 fn distance_squared(point: (f32, f32), other: (f32, f32)) -> f32 {
