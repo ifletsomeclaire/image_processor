@@ -13,8 +13,6 @@ Cargo.lock
 # Added by cargo
 
 /target
-/x_output/interpolate/*
-/x_output/image_files/*
-/x_output/crop/*
+/x_output/*
 
 edgy.png
