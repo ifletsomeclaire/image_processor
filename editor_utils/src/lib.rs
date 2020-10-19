@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use interpolate::{
-    dainargs::{DainArgs, DainBool, Interpolations},
-    run_dain_and_wait,
-};
+use interpolate::{dainargs::{DainArgs, DainNum}, run_dain_and_wait};
 
 pub mod transparency;
 pub mod image_io;
@@ -17,22 +14,18 @@ pub fn read_sample_folder_and_dain_it<P: AsRef<Path>>(path: P) {
 
     let mut images = image_io::walkdir_for_images(path);
     upscale::upscale_images(&mut images, width, height);
-    image_io::save_images("x_output/image_files", &images);
-
-    let gif_path = "x_output/gif_hack.gif";
-    gif::generate_gif(gif_path, images, width, height);
+    images.push(images[0].clone()); // add first frame to end to ensure smooth interpolation back to start
+    image_io::save_images_for_dain("x_output/interpolate/original_frames", &images);
 
     let mut args = DainArgs::new(
-        root.join(gif_path),
         root.join("x_output/interpolate"),
-        String::from("gifout.gif"),
+        root.join("x_output/interpolate"),
+        String::from("interp_out.mp4"),
     );
-    args.set_interpolations(Interpolations::Eight);
-    args.set_loop(DainBool::OneTrue);
+    args.set_interpolations(DainNum::Eight);
+    args.set_loop(DainNum::OneTrue);
+    args.set_alpha(DainNum::Two);
     run_dain_and_wait(&args);
-
-    let newimages = image_io::walkdir_for_images("x_output/interpolate/interpolated_frames");
-    gif::generate_gif(gif_path, newimages, width, height);
 }
 
 

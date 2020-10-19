@@ -10,7 +10,3 @@ edition = "2018"
 interpolate = { path = "../interpolate" }
 edge_detector = { path = "../edge_detector" }
 editor_utils = { path = "../editor_utils" }
-# raster = "*"
-# gif = "0.11.1"
-# walkdir = "2"
-# rayon = "*"

@@ -1,6 +1,6 @@
-use std::path::Path;
 use raster::{Color, Image};
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+use std::path::Path;
 
 use crate::image_io;
 
@@ -12,8 +12,8 @@ pub fn transparency<P: AsRef<Path>>(path: P) {
 
 pub fn remove_background_noise(images: &mut Vec<Image>) {
     images.par_iter_mut().for_each(|image| {
-        image.remove_dark_pixels(10.0);
-        image.remove_by_inverse_square(0.001)
+        image.remove_dark_pixels(20.0);
+        image.remove_by_inverse_square(0.01)
     });
 }
 
@@ -29,24 +29,27 @@ impl Transparency for Image {
                 let p = self.get_pixel(x, y).unwrap();
                 let gray = (p.r as f32 * 0.3) + (p.g as f32 * 0.59) + (p.b as f32 * 0.11);
                 if gray < max_alpha {
-                    self.set_pixel(x, y, Color::rgba(p.r, p.g, p.b, 0)).unwrap();
+                    self.set_pixel(x, y, Color::rgba(0, 0, 0, 0)).unwrap();
                 }
             }
         }
     }
     fn remove_by_inverse_square(&mut self, square: f32) {
+        let center = (self.width as f32 / 2.0, self.height as f32 / 2.0);
+        let dead_zone = distance((self.width as f32 / 2.5, self.height as f32 / 2.5), center);
         for x in 0..self.width {
             for y in 0..self.height {
                 let p = self.get_pixel(x, y).unwrap();
                 let gray = (p.r as f32 * 0.33) + (p.g as f32 * 0.33) + (p.b as f32 * 0.33);
-                let alt_inv = 1.0
-                    / distance(
-                        (x as f32, y as f32),
-                        (self.width as f32 / 2.0, self.height as f32 / 2.0),
-                    )
-                    .powf(square);
-                self.set_pixel(x, y, Color::rgba(p.r, p.g, p.b, (gray * alt_inv) as u8))
-                    .unwrap();
+                let distance = distance(
+                    (x as f32, y as f32),
+                    center,
+                );
+                if distance > dead_zone {
+                    let alt_inv = 1.0 / (distance - dead_zone).powf(square);
+                    self.set_pixel(x, y, Color::rgba(p.r, p.g, p.b, (gray * alt_inv) as u8))
+                        .unwrap();
+                }
             }
         }
     }

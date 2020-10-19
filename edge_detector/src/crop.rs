@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use edge_detection::Detection;
-use raster::{Image, PositionMode, editor::crop};
+use raster::{editor::crop, Image, PositionMode};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::edge::gather_edge_pixels;
 
@@ -17,8 +18,7 @@ pub fn crop_by_edge_detection<P: AsRef<Path>>(path: P, detection: Detection) -> 
 }
 
 fn generate_cropped_images(image: Image, crop_areas: Vec<CropArea>) -> Vec<Image> {
-    let mut images = Vec::new();
-    for (c, croparea) in crop_areas.iter().enumerate() {
+    crop_areas.par_iter().map(|croparea| {
         let width = (image.width).min(croparea.max_x) - 0.max(croparea.min_x);
         let height = (image.height).min(croparea.max_y) - 0.max(croparea.min_y);
         let mut im = image.clone();
@@ -31,9 +31,8 @@ fn generate_cropped_images(image: Image, crop_areas: Vec<CropArea>) -> Vec<Image
             croparea.min_y,
         )
         .expect("trying to crop?");
-        images.push(im);
-    }
-    images
+        im
+    }).collect::<Vec<_>>()
 }
 
 fn get_crop_area(edges: &mut Vec<(i32, i32)>) -> CropArea {

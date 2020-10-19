@@ -11,3 +11,4 @@ editor_utils = { path = "../editor_utils" }
 edge-detection = "0.2.5"
 image = "0.23"
 raster = "*"
+rayon = "1.4.1"

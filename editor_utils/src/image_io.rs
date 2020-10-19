@@ -28,3 +28,8 @@ pub fn save_images(path: &str, images: &Vec<Image>) {
         let _ = raster::save(&image, &format!("{}/image{}.png", path, i));
     }
 }
+pub fn save_images_for_dain(path: &str, images: &Vec<Image>) {
+    for (i, image) in images.iter().enumerate() {
+        let _ = raster::save(&image, &format!("{}/{:06}.png", path, i + 1));
+    }
+}

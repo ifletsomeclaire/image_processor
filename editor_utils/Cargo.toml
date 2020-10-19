@@ -11,4 +11,4 @@ interpolate = { path = "../interpolate" }
 raster = "*"
 gif = "0.11.1"
 walkdir = "2"
-rayon = "*"
+rayon = "1.4.1"
