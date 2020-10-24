@@ -10,6 +10,7 @@ pub fn transparency<P: AsRef<Path>>(path: P) {
     image_io::save_images("x_output/transparency", &images);
 }
 
+// TODO: expose more settings
 pub fn remove_background_noise(images: &mut Vec<Image>) {
     images.par_iter_mut().for_each(|image| {
         image.remove_dark_pixels(20.0);

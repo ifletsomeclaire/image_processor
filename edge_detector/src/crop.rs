@@ -1,17 +1,14 @@
-use std::path::Path;
-
 use edge_detection::Detection;
 use raster::{editor::crop, Image, PositionMode};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::edge::gather_edge_pixels;
 
-pub fn crop_by_edge_detection<P: AsRef<Path>>(path: P, detection: Detection) -> Vec<Image> {
-    let image = raster::open(path.as_ref().to_str().expect("path to str")).unwrap();
+pub fn crop_by_edge_detection(image: Image, detection: Detection) -> Vec<Image> {
     let mut edges = gather_edge_pixels(detection);
     let mut crop_areas = Vec::new();
     while edges.len() > 1 {
-        crop_areas.push(get_crop_area(&mut edges));
+        crop_areas.push(get_crop_area(&mut edges)); // TODO find a way to put this in rayon?
     }
     println!("{:?}", crop_areas.len());
     generate_cropped_images(image, crop_areas)
@@ -19,6 +16,8 @@ pub fn crop_by_edge_detection<P: AsRef<Path>>(path: P, detection: Detection) -> 
 
 fn generate_cropped_images(image: Image, crop_areas: Vec<CropArea>) -> Vec<Image> {
     crop_areas.par_iter().map(|croparea| {
+        // TODO: create size function to determine these properly; incorporate min/max processing from below
+        // Maybe also include settings that would make image tighter in or wider out?
         let width = (image.width).min(croparea.max_x) - 0.max(croparea.min_x);
         let height = (image.height).min(croparea.max_y) - 0.max(croparea.min_y);
         let mut im = image.clone();
@@ -35,12 +34,14 @@ fn generate_cropped_images(image: Image, crop_areas: Vec<CropArea>) -> Vec<Image
     }).collect::<Vec<_>>()
 }
 
+// TODO try to make this more efficient; popping and removing from Vec is not
 fn get_crop_area(edges: &mut Vec<(i32, i32)>) -> CropArea {
     let pixel = edges.pop().unwrap();
     let mut crop_list = vec![pixel];
 
     check_nearby_pixels(pixel, edges, &mut crop_list);
 
+    // TODO: is this really the best way?
     crop_list.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
     let min_x = crop_list[0].0 as i32;
     let max_x = crop_list[crop_list.len() - 1].0 as i32;
@@ -48,6 +49,7 @@ fn get_crop_area(edges: &mut Vec<(i32, i32)>) -> CropArea {
     let min_y = crop_list[0].1 as i32;
     let max_y = crop_list[crop_list.len() - 1].1 as i32;
 
+    // TODO simplify here, and add min/max processing elsewhere
     CropArea {
         edges: crop_list,
         min_x: min_x - ((max_x - min_x) / 2) - 1,

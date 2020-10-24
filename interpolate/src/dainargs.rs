@@ -1,13 +1,14 @@
 use std::path::Path;
 
+// TODO: expose more settings and options; this can be WAY cooler
 #[derive(Debug, Default)]
 pub struct DainArgs {
-    pub input: std::path::PathBuf,                 //Path to the input video
+    pub input: std::path::PathBuf, //Path to the input video - may not be necessary if we're not doing the extract step
     pub output: std::path::PathBuf, //Output Path to generate the folder with all the files.
     pub output_name: String, //Name and extension of the videos that will be rendered. [mp4, webm, gif, apng]
     pub pallette: Option<bool>, //Generate a version of the file limiting the pallete.
     pub downscale: Option<i32>, //Downscale the input resolution. (-1 Turn off)
-    pub anim_loop: Option<DainNum>, //1 if the animation do a perfect loop, default 0
+    pub anim_loop: Option<DainNum>, //1 if the animation do a perfect loop, default 0 - I think this adds 1st frame to end, we do that automatically since we're not using their png export anymore
     pub interpolations: Option<DainNum>, //How much new frames will be created. 2, 4, 8
     pub downsample_fps: Option<i32>, //Cap fps to this value. (-1 Turn off)
     pub frame_handling: Option<i32>, //Interpolation Modes: Mode 1 - Default ; Mode 2 - Default, remove duplicates ; Mode 3 - Adaptative; Timestamp ; 4 - Static timestamp
@@ -21,6 +22,8 @@ pub struct DainArgs {
     pub interpolation_algo: Option<i32>, //0: Default 1: Experimental
     pub interpolate_missing_original: Option<i32>, //Create interpolation of any missing files in the original_folders
     pub png_compress: Option<i32>,
+    // TODO: add settings for render/extract/interpolate steps
+    // Review the json file that gets created in the interpolate folder as well
 }
 impl DainArgs {
     pub fn to_arguments(&self) -> Vec<&str> {

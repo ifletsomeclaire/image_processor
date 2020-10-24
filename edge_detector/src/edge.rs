@@ -2,6 +2,7 @@ use std::path::Path;
 
 use edge_detection::{canny, Detection};
 
+// TODO: expose sigma/threshhold settings
 pub fn detect_edges<P: AsRef<Path>>(path: P) -> Detection {
     let source_image = image::open(path).expect("failed to read image").to_luma();
     let detection = canny(source_image, 2.0, 0.1, 0.01);

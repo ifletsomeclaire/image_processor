@@ -1,6 +1,7 @@
 fn main() {
     editor_utils::transparency::transparency("x_image_samples/stars");
-    editor_utils::read_sample_folder_and_dain_it("x_output/transparency");
+    interpolate::read_sample_folder_and_dain_it("x_output/transparency");
+    interpolate::loop_interpolation();
 
     // editor_utils::read_sample_folder_and_dain_it("x_image_samples/stars");
 
